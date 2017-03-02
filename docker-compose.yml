@@ -1,0 +1,37 @@
+version: "2"
+
+# 参考 https://github.com/hteen/docker-lnmp
+
+services:
+
+    phpfpm:
+        image: php:fpm
+        volumes:
+            - ./www:/www
+        ports:
+            - 9000:9000 # 可选，选用是为了验证直接访问 php-fpm 的输出
+        external_links:
+            - mysql # 改成外部链接，避免重复创建 mysql 以及数据转移
+
+    # mysql:
+    #     image: mysql
+    #     restart: always
+    #     ports:
+    #         - 3306:3306
+    #     volumes:
+    #         - ./mysql:/var/lib/mysql
+    #     environment:
+    #         - MYSQL_ROOT_PASSWORD=aljeida@mysql
+
+    nginx:
+        image: nginx
+        volumes:
+            - /etc/nginx:/etc/nginx:ro
+            - /var/log/nginx:/var/log/nginx
+        volumes_from:
+            - phpfpm
+        ports:
+            - 443:443
+            - 80:80
+        links:
+            - phpfpm
